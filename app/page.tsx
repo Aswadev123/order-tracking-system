@@ -1,65 +1,97 @@
-import Image from "next/image";
+"use client";
+
+import { useEffect, useState } from "react";
+import { Box, Button, Card, CardContent, Typography, Grid, Stack, Grow } from "@mui/material";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
+  const router = useRouter();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => setMounted(true), []);
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+    <Box  bgcolor="#f6f7fb" className="min-h-screen flex items-center justify-center bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-200 via-slate-100 to-white p-6">
+      <Grow in={mounted} timeout={600}>
+        <Card
+          sx={{
+            width: "100%",
+            maxWidth: 1100,
+            borderRadius: "18px",
+            overflow: "hidden",
+            boxShadow: "0 30px 80px rgba(2,6,23,0.12)",
+            background: "linear-gradient(180deg, rgba(255,255,255,0.96), rgba(255,255,255,0.9))",
+          }}
+        >
+          <Grid container>
+            <Grid item xs={12} md={6} sx={{ p: { xs: 4, md: 8 }, display: { xs: "block", md: "flex" }, alignItems: "center" }}>
+              <CardContent>
+                <Typography variant="h3" fontWeight={900} gutterBottom>
+                  OrderFlow — Fast, Reliable Deliveries
+                </Typography>
+                <Typography variant="h6" color="text.secondary" mb={3}>
+                  Create orders, assign drivers, and track deliveries in real-time.
+                </Typography>
+
+                <Stack spacing={1.2} mb={4}>
+                  <Typography>
+                    • Real-time updates with SSE
+                  </Typography>
+                  <Typography>
+                    • Full order history and role-based access
+                  </Typography>
+                  <Typography>
+                    • Simple APIs and clean dashboards for merchants, drivers and admins
+                  </Typography>
+                </Stack>
+
+                <Stack direction="row" spacing={2}>
+                  <Button
+                    size="large"
+                    onClick={() => router.push('/register')}
+                    sx={{
+                      py: 1.4,
+                      px: 4,
+                      fontWeight: 800,
+                      borderRadius: 3,
+                      background: "linear-gradient(135deg,#10b981,#06b6d4)",
+                      color: "white",
+                       transition: "all .3s",
+                      boxShadow: "0 18px 36px rgba(16,185,129,0.12)",
+                      textTransform: "none",
+                      '&:hover': {
+                          transform: 'translateY(2px)',color: "white" },
+                    }}
+                  >
+                    Create Account
+                  </Button>
+
+                  <Button
+                    size="large"
+                    variant="outlined"
+                    onClick={() => router.push('/login')}
+                    sx={{
+                      py: 1.4,
+                      px: 4,
+                      fontWeight: 700,
+                      transition: "all .3s",
+                         '&:hover': { background: '#c9c9c9ff',
+                          transform: 'translateY(2px)',color: "white" },
+                      borderRadius: 3,
+                      textTransform: "none",
+                      borderColor: (theme) => theme.palette.grey[300],
+                    }}
+                  >
+                    Sign In
+                  </Button>
+                </Stack>
+              </CardContent>
+            </Grid>
+
+          
+          </Grid>
+        </Card>
+      </Grow>
+    </Box>
   );
 }
