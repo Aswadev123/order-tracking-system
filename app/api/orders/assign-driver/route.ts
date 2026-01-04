@@ -18,7 +18,7 @@ export async function POST(req: Request) {
     return Response.json({ message: "Unauthorized" }, { status: 403 });
   }
 
-  const { orderId, driverId } = await req.json();
+  const { orderId, driverId, expectedSeq } = await req.json();
 
   // Basic validation for driverId
   if (!driverId || typeof driverId !== "string" || !/^[0-9a-fA-F]{24}$/.test(driverId)) {
@@ -33,19 +33,34 @@ export async function POST(req: Request) {
     return Response.json({ message: "Driver not found or invalid role" }, { status: 400 });
   }
 
-  const order = await Order.findOne({ orderId });
-  if (!order) return Response.json({ message: "Order not found" }, { status: 404 });
+  // ensure expectedSeq provided
+  if (expectedSeq === undefined || typeof expectedSeq !== 'number') {
+    return Response.json({ message: "expectedSeq (number) is required for concurrency control" }, { status: 400 });
+  }
 
-  const prevStatus = order.status;
-  order.driverId = driverId;
-  order.status = "ASSIGNED";
-  await order.save();
+  const existing = await Order.findOne({ orderId });
+  if (!existing) return Response.json({ message: "Order not found" }, { status: 404 });
+
+  // atomic update based on seq
+  const updated = await Order.findOneAndUpdate(
+    { orderId, seq: expectedSeq },
+    { $set: { driverId: driverId, status: "ASSIGNED" }, $inc: { seq: 1 } },
+    { new: true }
+  );
+
+  if (!updated) {
+    const current = await Order.findOne({ orderId }).lean();
+    return Response.json({ message: "Sequence conflict or duplicate update", currentSeq: current?.seq, currentStatus: current?.status }, { status: 409 });
+  }
+
+  const prevStatus = existing.status;
 
   // write history entry
   try {
     await OrderHistory.create({
-      orderId: order.orderId,
-      status: order.status,
+      orderId: updated.orderId,
+      status: updated.status,
+      seq: updated.seq,
       updatedBy: user.id,
       role: user.role,
       metadata: {
@@ -62,10 +77,10 @@ export async function POST(req: Request) {
   // publish realtime event
   try {
     const realtime = (await import("@/lib/realtime")).default;
-    realtime.publish("order.updated", { orderId: order.orderId, status: order.status, assignedDriver: driverId });
+    realtime.publish("order.updated", { orderId: updated.orderId, status: updated.status, assignedDriver: driverId, seq: updated.seq });
   } catch (e) {
     console.error("Realtime publish failed:", e);
   }
 
-  return Response.json({ message: "Driver assigned", orderId: order.orderId });
+  return Response.json({ message: "Driver assigned", orderId: updated.orderId, seq: updated.seq });
 }

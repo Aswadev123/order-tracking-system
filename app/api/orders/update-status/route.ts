@@ -12,35 +12,48 @@ export async function POST(req: Request) {
     return Response.json({ message: "Unauthorized" }, { status: 403 });
   }
 
-  const { orderId, status } = await req.json();
+  const { orderId, status, expectedSeq } = await req.json();
   if (!orderId) return Response.json({ message: "orderId is required" }, { status: 400 });
   if (!isValidStatus(status)) return Response.json({ message: "Invalid status value" }, { status: 400 });
-
-  await connectDB();
-  const order = await Order.findOne({ orderId });
-  if (!order) return Response.json({ message: "Order not found" }, { status: 404 });
-
-  if (!canTransition(order.status, status)) {
-    return Response.json({ message: `Invalid transition from ${order.status} to ${status}` }, { status: 400 });
+  if (expectedSeq === undefined || typeof expectedSeq !== "number") {
+    return Response.json({ message: "expectedSeq (number) is required for concurrency control" }, { status: 400 });
   }
 
-  // perform update atomically
-  const prevStatus = order.status;
-  order.status = status;
-  await order.save();
+  await connectDB();
+  // read for existence
+  const existing = await Order.findOne({ orderId });
+  if (!existing) return Response.json({ message: "Order not found" }, { status: 404 });
+
+  if (!canTransition(existing.status, status)) {
+    return Response.json({ message: `Invalid transition from ${existing.status} to ${status}` }, { status: 400 });
+  }
+
+  // perform atomic conditional update based on seq to detect out-of-order/duplicate updates
+  const updated = await Order.findOneAndUpdate(
+    { orderId, seq: expectedSeq },
+    { $set: { status }, $inc: { seq: 1 } },
+    { new: true }
+  );
+
+  if (!updated) {
+    // conflict: someone else updated first or duplicate
+    const current = await Order.findOne({ orderId }).lean();
+    return Response.json({ message: "Sequence conflict or duplicate update", currentSeq: current?.seq, currentStatus: current?.status }, { status: 409 });
+  }
 
   // write history
   try {
     await OrderHistory.create({
-      orderId: order.orderId,
-      status: order.status,
+      orderId: updated.orderId,
+      status: updated.status,
+      seq: updated.seq,
       updatedBy: user.id,
       role: user.role,
       metadata: {
         ip: req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip") || req.headers.get("x-client-ip") || "unknown",
         userAgent: req.headers.get("user-agent") || null,
         source: "DRIVER_UPDATE",
-        prevStatus,
+        prevStatus: existing.status,
       },
     });
   } catch (err) {
@@ -50,10 +63,10 @@ export async function POST(req: Request) {
   // publish realtime update
   try {
     const realtime = (await import("@/lib/realtime")).default;
-    realtime.publish("order.updated", { orderId: order.orderId, status: order.status, updatedAt: new Date() });
+    realtime.publish("order.updated", { orderId: updated.orderId, status: updated.status, updatedAt: new Date(), seq: updated.seq });
   } catch (e) {
     console.error("Realtime publish failed:", e);
   }
 
-  return Response.json({ message: "Status updated", orderId: order.orderId, status: order.status });
+  return Response.json({ message: "Status updated", orderId: updated.orderId, status: updated.status, seq: updated.seq });
 }

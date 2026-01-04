@@ -2,6 +2,8 @@ import mongoose from "mongoose";
 
 const OrderSchema = new mongoose.Schema({
   orderId: { type: String, required: true, unique: true, index: true },
+  // sequence number to detect out-of-order or duplicate updates
+  seq: { type: Number, required: true, default: 0, index: true },
   merchantId: { type: mongoose.Schema.Types.ObjectId, index: true },
   driverId: mongoose.Schema.Types.ObjectId,
   customerName: String,

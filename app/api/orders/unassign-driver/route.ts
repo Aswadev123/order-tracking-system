@@ -17,23 +17,35 @@ export async function POST(req: Request) {
     return Response.json({ message: "Unauthorized" }, { status: 403 });
   }
 
-  const { orderId } = await req.json();
+  const { orderId, expectedSeq } = await req.json();
   if (!orderId) return Response.json({ message: "orderId required" }, { status: 400 });
+  if (expectedSeq === undefined || typeof expectedSeq !== 'number') {
+    return Response.json({ message: "expectedSeq (number) is required for concurrency control" }, { status: 400 });
+  }
 
   await connectDB();
 
-  const order = await Order.findOne({ orderId });
-  if (!order) return Response.json({ message: "Order not found" }, { status: 404 });
+  const existing = await Order.findOne({ orderId });
+  if (!existing) return Response.json({ message: "Order not found" }, { status: 404 });
 
-  const prevStatus = order.status;
-  order.driverId = null;
-  order.status = "CREATED";
-  await order.save();
+  const updated = await Order.findOneAndUpdate(
+    { orderId, seq: expectedSeq },
+    { $set: { driverId: null, status: "CREATED" }, $inc: { seq: 1 } },
+    { new: true }
+  );
+
+  if (!updated) {
+    const current = await Order.findOne({ orderId }).lean();
+    return Response.json({ message: "Sequence conflict or duplicate update", currentSeq: current?.seq, currentStatus: current?.status }, { status: 409 });
+  }
+
+  const prevStatus = existing.status;
 
   try {
     await OrderHistory.create({
-      orderId: order.orderId,
-      status: order.status,
+      orderId: updated.orderId,
+      status: updated.status,
+      seq: updated.seq,
       updatedBy: user.id,
       role: user.role,
       metadata: {
@@ -50,10 +62,10 @@ export async function POST(req: Request) {
   // publish realtime event
   try {
     const realtime = (await import("@/lib/realtime")).default;
-    realtime.publish("order.updated", { orderId: order.orderId, status: order.status });
+    realtime.publish("order.updated", { orderId: updated.orderId, status: updated.status, seq: updated.seq });
   } catch (e) {
     console.error("Realtime publish failed:", e);
   }
 
-  return Response.json({ message: "Driver unassigned", orderId: order.orderId });
+  return Response.json({ message: "Driver unassigned", orderId: updated.orderId, seq: updated.seq });
 }

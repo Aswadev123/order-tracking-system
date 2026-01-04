@@ -34,9 +34,10 @@ export async function POST(req: Request) {
   }
 
   await connectDB();
-
+  // initialize sequence at 1 for new orders
   const order = await Order.create({
     orderId: crypto.randomUUID(),
+    seq: 1,
     merchantId: user.id,
     customerName: body.customerName,
     address: body.address,
@@ -51,6 +52,7 @@ export async function POST(req: Request) {
     await OrderHistory.create({
       orderId: order.orderId,
       status: order.status,
+      seq: order.seq,
       updatedBy: user.id,
       role: user.role,
       metadata: {
