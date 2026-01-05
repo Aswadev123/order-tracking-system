@@ -30,7 +30,6 @@ import {
   Business,
   DeliveryDining,
   AdminPanelSettings,
-  WidthFull,
 } from "@mui/icons-material";
 
 export default function RegisterPage() {
@@ -123,13 +122,12 @@ export default function RegisterPage() {
           sx={{
             width: "100%",
             maxWidth: 660,
-            Height: 700,
+            height: 500,
             borderRadius: 4,
             backdropFilter: "blur(16px)",
             background:
               "linear-gradient(180deg, rgba(255,255,255,0.92), rgba(255,255,255,0.78))",
             boxShadow: "0 40px 90px rgba(15,23,42,0.15)",
-         
           }}
         >
           <CardContent sx={{ p: { xs: 4, md: 6 } }}>
@@ -158,10 +156,10 @@ export default function RegisterPage() {
                   A secure, future-ready onboarding experience
                 </Typography>
 
-                <Grid container spacing={3}>
-                  <Grid item xs={12}>
+                <Grid container spacing={3} justifyContent="center">
+                  <Grid>
                     <TextField
-                    sx={{ width: 260 }}
+                      sx={{ width: 260 }}
                       label="Full Name"
                       name="name"
                       value={form.name}
@@ -176,11 +174,10 @@ export default function RegisterPage() {
                     />
                   </Grid>
 
-                  <Grid item xs={12}>
+                  <Grid>
                     <TextField
-                      fullWidth
+                      sx={{ width: 260 }}
                       label="Email Address"
-                       sx={{ width: 260 }}
                       name="email"
                       type="email"
                       value={form.email}
@@ -195,11 +192,10 @@ export default function RegisterPage() {
                     />
                   </Grid>
 
-                  <Grid item xs={12}            >
+                  <Grid>
                     <TextField
-                      fullWidth
+                      sx={{ width: 260, borderRadius: 3 }}
                       label="Password"
-                       sx={{ width: 260, borderRadius: 3 }}
                       name="password"
                       type={showPassword ? "text" : "password"}
                       value={form.password}
@@ -219,15 +215,13 @@ export default function RegisterPage() {
                         ),
                       }}
                     />
-               
                   </Grid>
 
-                  <Grid item xs={12}>
+                  <Grid>
                     <TextField
-                      fullWidth
+                      sx={{ width: 260, borderRadius: 2 }}
                       label="Confirm Password"
                       name="confirmPassword"
-                       sx={{ width: 260, borderRadius: 2 }}
                       type={showConfirmPassword ? "text" : "password"}
                       value={form.confirmPassword}
                       onChange={handleChange}
@@ -254,13 +248,13 @@ export default function RegisterPage() {
                     />
                   </Grid>
 
-                  <Grid item xs={12}>
-                    <FormControl fullWidth>
+                  <Grid >
+                    <FormControl sx={{ width: 260 }}>
                       <InputLabel>Account Type</InputLabel>
                       <Select
                         name="role"
                         value={form.role}
-                         sx={{ width: 260, borderRadius: 3 }}
+                        sx={{ borderRadius: 3 }}
                         label="Account Type"
                         onChange={handleChange}
                         startAdornment={
@@ -276,52 +270,50 @@ export default function RegisterPage() {
                     </FormControl>
                   </Grid>
 
-              
-
-                  <Grid item xs={12}>
+                  <Grid >
                     <Button
-                      fullWidth
-                      size="large"
-                      disabled={loading}
-                      
-                      onClick={handleRegister}
                       sx={{
                         width: 260,
                         py: 1.9,
                         fontWeight: 900,
                         borderRadius: 2,
-                         background: "linear-gradient(135deg,#6366f1,#0ea5e9)",
+                        background: "linear-gradient(135deg,#6366f1,#0ea5e9)",
                         color: "white",
-                       
                         transition: "all .3s",
-                        '&:hover': {background: 'linear-gradient(135deg,#6366f1,#0ea5e9) 60% ',
+                        '&:hover': {
+                          background: 'linear-gradient(135deg,#6366f1,#0ea5e9) 60%',
                           transform: 'translateY(2px)',
                         },
                       }}
+                      size="large"
+                      disabled={loading}
+                      onClick={handleRegister}
                     >
                       {loading ? "Creating Account..." : "Create Account"}
                     </Button>
                   </Grid>
-                   <Grid item xs={12} textAlign="center">
-                                          <Typography variant="caption" ml={23} color="text.secondary">
-                                            Already have an account?{' '}
-                                            <span className="text-blue-600 cursor-pointer" color="blue" onClick={() => router.push('/login')}>
-                                             login
-                                            </span>
-                                          </Typography>
-                                        </Grid>
 
-                  <Grid item xs={12} textAlign="center">
-                      <Grid item xs={12} sx={{ }}>
-                    <Fade in={!!error} >
+                  <Grid textAlign="center">
+                    <Typography ml={9} variant="caption" color="text.secondary">
+                      Already have an account?{' '}
+                      <span 
+                        className="text-blue-600 cursor-pointer" 
+                        onClick={() => router.push('/login')}
+                        style={{ color: '#2563eb' }}
+                      >
+                          login
+                      </span>
+                    </Typography>
+                  </Grid>
+
+                  <Grid sx={{ mt: 2 }}>
+                    <Fade in={!!error}>
                       <Alert severity="error">{error}</Alert>
                     </Fade>
                     <Fade in={!!success}>
                       <Alert severity="success">{success}</Alert>
                     </Fade>
                   </Grid>
-                  </Grid>
-
                 </Grid>
               </Box>
             </Slide>

@@ -23,6 +23,8 @@ import {
   MenuItem,
 } from "@mui/material";
 
+const GridAny: any = Grid;
+
 interface Order {
   orderId: string;
   status: string;
@@ -172,8 +174,8 @@ export default function DriverDashboard() {
       </Box>
 
       {/* Filters */}
-      <Grid container spacing={2} mb={2}>
-        <Grid item xs={12} md={3}>
+      <GridAny container spacing={2} mb={2}>
+        <GridAny item xs={12} md={3}>
           <TextField
             fullWidth
             size="small"
@@ -182,9 +184,9 @@ export default function DriverDashboard() {
             value={searchOrderId}
             onChange={(e) => setSearchOrderId(e.target.value)}
           />
-        </Grid>
+        </GridAny>
 
-        <Grid item xs={12} md={3}>
+        <GridAny item xs={12} md={3}>
           <TextField
             fullWidth
             size="small"
@@ -193,9 +195,9 @@ export default function DriverDashboard() {
             value={searchCustomer}
             onChange={(e) => setSearchCustomer(e.target.value)}
           />
-        </Grid>
+        </GridAny>
 
-        <Grid item xs={12} md={3}>
+        <GridAny item xs={12} md={3}>
           <TextField
             fullWidth
             select
@@ -211,9 +213,9 @@ export default function DriverDashboard() {
             <MenuItem value="IN_TRANSIT">In Transit</MenuItem>
             <MenuItem value="DELIVERED">Delivered</MenuItem>
           </TextField>
-        </Grid>
+        </GridAny>
 
-      </Grid>
+      </GridAny>
 
       {/* Table */}
       <TableContainer component={Paper} elevation={3}>
@@ -268,7 +270,7 @@ export default function DriverDashboard() {
 
         <DialogContent dividers>
           {selectedOrder && (
-            <Grid display="flex" flexDirection="column" gap={1.5}>
+            <GridAny display="flex" flexDirection="column" gap={1.5}>
               <Detail label="Order ID" value={selectedOrder.orderId} />
               <Detail label="Status" value={selectedOrder.status} />
               <Detail label="Customer" value={selectedOrder.customerName} />
@@ -284,7 +286,7 @@ export default function DriverDashboard() {
                 }
               />
               <Detail label="Details" value={selectedOrder.details} />
-            </Grid>
+            </GridAny>
           )}
         </DialogContent>
 
@@ -310,11 +312,11 @@ export default function DriverDashboard() {
 /* Reusable detail row */
 function Detail({ label, value }: { label: string; value?: any }) {
   return (
-    <Grid item xs={12}>
+    <GridAny item xs={12}>
       <Typography variant="caption" color="text.secondary">
         {label}
       </Typography>
       <Typography fontWeight={600}>{value || "-"}</Typography>
-    </Grid>
+    </GridAny>
   );
 }

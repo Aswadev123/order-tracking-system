@@ -22,10 +22,12 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  Grid,
+  
   Divider,
   TextField,
 } from "@mui/material";
+import Grid from "@mui/material/Grid"; // Using Grid from @mui/material
+const GridAny: any = Grid;
 
 interface Order {
   orderId: string;
@@ -239,8 +241,8 @@ export default function AdminDashboard() {
      
 
       {/* 🔍 Filters */}
-      <Grid container spacing={2} mb={3}>
-        <Grid item xs={12} md={4}>
+      <GridAny container spacing={2} mb={3}>
+        <GridAny item component="div" xs={12} md={4}>
           <TextField
             fullWidth
             size="small"
@@ -249,9 +251,9 @@ export default function AdminDashboard() {
             value={searchOrder}
             onChange={(e) => setSearchOrder(e.target.value)}
           />
-        </Grid>
+        </GridAny>
 
-        <Grid item xs={12} md={4}>
+        <GridAny item component="div" xs={12} md={4}>
           <FormControl fullWidth size="small" sx={{ minWidth: 380 }}>
             <InputLabel>Assignment</InputLabel>
             <Select
@@ -268,9 +270,9 @@ export default function AdminDashboard() {
               <MenuItem value="unassigned">Unassigned</MenuItem>
             </Select>
           </FormControl>
-        </Grid>
+        </GridAny>
 
-        <Grid item xs={12} md={4}>
+        <GridAny item component="div" xs={12} md={4}>
           <FormControl fullWidth size="small" sx={{ minWidth: 380 }}>
             <InputLabel>Status</InputLabel>
             <Select
@@ -294,8 +296,8 @@ export default function AdminDashboard() {
               <MenuItem value="cancelled">Cancelled</MenuItem>
             </Select>
           </FormControl>
-        </Grid>
-      </Grid>
+        </GridAny>
+      </GridAny>
 
       {/* Orders Table */}
       <TableContainer component={Paper} elevation={3}>
@@ -369,7 +371,7 @@ export default function AdminDashboard() {
                 }
               />
 
-              <Grid item xs={12}>
+              <GridAny item component="div" xs={12}>
                 <Divider sx={{ my: 1 }} />
                 <Typography variant="caption" color="text.secondary">
                   Order Details
@@ -377,9 +379,9 @@ export default function AdminDashboard() {
                 <Typography fontWeight={500}>
                   {selectedOrder.details || "-"}
                 </Typography>
-              </Grid>
+              </GridAny>
 
-              <Grid item xs={12}>
+              <GridAny item component="div" xs={12}>
                   <FormControl fullWidth>
                   <InputLabel>Select Driver</InputLabel>
                   <Select
@@ -398,7 +400,7 @@ export default function AdminDashboard() {
                     ))}
                   </Select>
                 </FormControl>
-              </Grid>
+              </GridAny>
             </Box>
           )}
         </DialogContent>
@@ -430,11 +432,11 @@ export default function AdminDashboard() {
 
 function Detail({ label, value }: { label: string; value?: any }) {
   return (
-    <Grid item xs={12} md={6}>
+    <GridAny item component="div" xs={12} md={6}>
       <Typography variant="caption" color="text.secondary">
         {label}
       </Typography>
       <Typography fontWeight={600}>{value || "-"}</Typography>
-    </Grid>
+    </GridAny>
   );
 }

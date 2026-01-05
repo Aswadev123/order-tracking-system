@@ -1,5 +1,10 @@
 import { EventEmitter } from "events";
 
+// Extend the global type to include our property
+declare global {
+  var __ORDER_TRACKING_REALTIME__: Realtime | undefined;
+}
+
 class Realtime extends EventEmitter {
   publish(channel: string, payload: any) {
     this.emit(channel, payload);
@@ -7,8 +12,11 @@ class Realtime extends EventEmitter {
 }
 
 // Singleton instance used by server routes
-const realtime = global.__ORDER_TRACKING_REALTIME__ as Realtime || new Realtime();
+const realtime = global.__ORDER_TRACKING_REALTIME__ || new Realtime();
+
 // expose globally to avoid multiple instances in dev/hot-reload
-if (!global.__ORDER_TRACKING_REALTIME__) (global as any).__ORDER_TRACKING_REALTIME__ = realtime;
+if (!global.__ORDER_TRACKING_REALTIME__) {
+  global.__ORDER_TRACKING_REALTIME__ = realtime;
+}
 
 export default realtime;

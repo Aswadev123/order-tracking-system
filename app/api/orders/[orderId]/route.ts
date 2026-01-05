@@ -2,7 +2,9 @@ import { connectDB } from "@/lib/db";
 import Order from "@/models/Order";
 import jwt from "jsonwebtoken";
 
-export async function GET(req: Request, { params }: { params: { orderId: string } }) {
+export async function GET(req: Request, context: any) {
+  const paramsSource = context?.params;
+  const params = paramsSource && typeof paramsSource.then === "function" ? await paramsSource : paramsSource;
   const token = req.headers.get("authorization")?.split(" ")[1];
 
   let user: any;
@@ -14,7 +16,7 @@ export async function GET(req: Request, { params }: { params: { orderId: string 
 
   await connectDB();
 
-  const order = await Order.findOne({ orderId: params.orderId }).lean();
+  const order = await Order.findOne({ orderId: params?.orderId }).lean();
   if (!order) return Response.json({ message: "Order not found" }, { status: 404 });
 
   // Authorization: admin can view all, merchant can view their own orders, driver can view if assigned

@@ -121,7 +121,7 @@ export default function MerchantDashboard() {
       <Card sx={{ mb: 3 }}>
         <CardContent>
           <Grid container spacing={2}>
-            <Grid item xs={12} md={4}>
+            <Grid>
               <TextField
                 fullWidth
                 sx={{ minWidth: 380}}
@@ -133,7 +133,7 @@ export default function MerchantDashboard() {
               />
             </Grid>
 
-            <Grid item xs={12} md={4}>
+            <Grid >
               <TextField
                 select
                 fullWidth
@@ -153,7 +153,7 @@ export default function MerchantDashboard() {
               </TextField>
             </Grid>
 
-            <Grid item xs={12} md={4}>
+            <Grid >
               <TextField
                 fullWidth
                 size="small"

@@ -2,7 +2,9 @@ import { connectDB } from "@/lib/db";
 import OrderHistory from "@/models/OrderHistory";
 import jwt from "jsonwebtoken";
 
-export async function GET(req: Request, { params }: { params: { orderId: string } }) {
+export async function GET(req: Request, context: any) {
+  const paramsSource = context?.params;
+  const params = paramsSource && typeof paramsSource.then === "function" ? await paramsSource : paramsSource;
   const token = req.headers.get("authorization")?.split(" ")[1];
 
   let user: any;
@@ -17,7 +19,7 @@ export async function GET(req: Request, { params }: { params: { orderId: string 
   // Admins can fetch history for any order; merchants/drivers allowed only if they are related
   // We don't check relation here strictly for drivers/merchants to keep endpoint simple — callers should ensure auth.
   // Filter and return history sorted by createdAt
-  const history = await OrderHistory.find({ orderId: params.orderId }).sort({ createdAt: 1 }).lean();
+  const history = await OrderHistory.find({ orderId: params?.orderId }).sort({ createdAt: 1 }).lean();
 
   if (!history || history.length === 0) return Response.json({ message: "No history found" }, { status: 404 });
 

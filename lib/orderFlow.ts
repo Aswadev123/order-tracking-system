@@ -26,3 +26,4 @@ export function canTransition(from: string, to: string) {
 }
 
 export default { STATUSES, ALLOWED_TRANSITIONS, isValidStatus, canTransition };
+
