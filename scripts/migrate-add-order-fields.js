@@ -12,7 +12,7 @@ require('dotenv').config({ path: '.env.local' });
 const Order = require('../models/Order').default || require('../models/Order');
 
 async function run() {
-  const uri = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/order-tracking';
+  const uri = process.env.MONGO_URI ;
   console.log('Connecting to', uri);
   await mongoose.connect(uri);
 
